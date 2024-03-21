@@ -8,7 +8,21 @@ This has only been tested against the Linux Native meshtastic build running in s
 
 The exporter expects to find a meshtastic simulator on localhost, instructions for setting up the Linux Native build can be found at [https://meshtastic.org/docs/software/linux-native/](https://meshtastic.org/docs/software/linux-native/).
 
-## Current Metrics
+## Plugin Architecture
+
+As functionality expanded quickly a simple class based plugin system was adopted.
+
+Current plugins:
+
+* prometheus - Original Prometheus interface
+* mqtt - Listen for telemetry & GPS data from MQTT topics to publish
+* message\_logger - Log text message applications to message log
+
+To enable/disable plugins please comment them from the PLUGINS array in mon.py
+
+### Prometheus
+
+#### Current Metrics
 
 The exporter currently splits packets into "radio" (packets coming from SIMULATOR\_APP port) and "local" (packets to/from the node in question, including packets to ^all).
 
@@ -19,7 +33,15 @@ The exporter currently splits packets into "radio" (packets coming from SIMULATO
 * node\_channel\_util
 * node\_airtx\_util
 
-## Text Message Logging
+### MQTT
+
+See the plugin script for the topic to data mapping.
+Telemetry and position are updated every UPDATE\_SECONDS seconds (as defined in script).
+
+The MQTT Host can be set in MQTT\_HOST.
+
+
+### Message Logging
 
 The script now also logs all TEXT\_MESSAGE\_APP payloads processed on local to messages.txt.
 
@@ -37,4 +59,5 @@ To start the scraper:
 
 * Docker container
 * Message logging
+* Configuration/Command Line Options
 
