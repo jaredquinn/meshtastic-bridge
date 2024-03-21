@@ -12,6 +12,13 @@ The exporter expects to find a meshtastic simulator on localhost, instructions f
 
 The exporter currently splits packets into "radio" (packets coming from SIMULATOR\_APP port) and "local" (packets to/from the node in question, including packets to ^all).
 
+* radio\_packets\_app
+* radio\_packets\_sender
+* local\_packets\_app
+* local\_packets\_sender
+* node\_channel\_util
+* node\_airtx\_util
+
 # Get Started
 
 To get up and running; create a python virtual environment and run:
