@@ -12,12 +12,16 @@ The exporter expects to find a meshtastic simulator on localhost, instructions f
 
 The exporter currently splits packets into "radio" (packets coming from SIMULATOR\_APP port) and "local" (packets to/from the node in question, including packets to ^all).
 
-* radio\_packets\_app
-* radio\_packets\_sender
+* sim\_packets\_app
+* sim\_packets\_sender
 * local\_packets\_app
 * local\_packets\_sender
 * node\_channel\_util
 * node\_airtx\_util
+
+## Text Message Logging
+
+The script now also logs all TEXT\_MESSAGE\_APP payloads processed on local to messages.txt.
 
 # Get Started
 
