@@ -6,6 +6,9 @@ from meshtastic import telemetry_pb2, portnums_pb2
 
 logger = logging.getLogger(__name__)
 
+TOPIC_TEXT_MESSAGE_PUBLISH = "meshtastic/default/textmessage"
+TOPIC_TEXT_MESSAGE_SEND = "meshtastic/default/sendtext"
+
 TOPIC_MAP={
   'statestream/sensor/gps/latitude': 'latitude',
   'statestream/sensor/gps/longitude': 'longitude',
@@ -14,13 +17,15 @@ TOPIC_MAP={
   'rtl_433/miranda/devices/Holman-WS5029/60120/temperature_C': 'temperature',
   'rtl_433/miranda/devices/Holman-WS5029/60120/humidity': 'humidity'
 }
+
+
 UPDATE_SECONDS = 300
 MQTT_HOST = '10.10.1.100'
 
 class MQTT_Plugin:
 
     def __init__(self, interface):
-        print('MQTT Plugin Initialized')
+        print('MQTT Telemetry Plugin Initialized')
         self._interface = interface
         self.DATA = {}
 
@@ -32,19 +37,32 @@ class MQTT_Plugin:
         self._client.on_message = self.on_mqtt_message
         self._count = 0
 
+    def handle_TEXT_MESSAGE_APP(self, sender, packet):
+        payload = packet.get('payload', '')
+        print(f'MQTT: Text Message Packet: {packet}')
+        self._client.publish(TOPIC_TEXT_MESSAGE_PUBLISH, payload)
+
+
     def on_mqtt_connect(self, client, userdata, flags, reason_code, properties):
-        print(f"Connected MQTT with result code {reason_code}")
+        print(f"Connected MQTT Telemetry with result code {reason_code}")
+        print(f"Subscribing to {TOPIC_TEXT_MESSAGE_SEND}")
+        client.subscribe(TOPIC_TEXT_MESSAGE_SEND)
         for k,v in TOPIC_MAP.items():
           print(f"Subscribing to {k}")
           client.subscribe(k)
 
     def on_mqtt_message(self, client, userdata, msg):
-        k = TOPIC_MAP[msg.topic]
-        v = msg.payload.decode('utf-8')
-        if v == '"n/a"':
-            return
-        self.DATA[k] = v
-        print(self.DATA)
+
+        if msg.topic == TOPIC_TEXT_MESSAGE_SEND:
+            print(f"Sending message to default channel {msg.payload}")
+            self._interface.sendText(msg.payload.decode('utf-8'))
+        else:
+            k = TOPIC_MAP[msg.topic]
+            v = msg.payload.decode('utf-8')
+            if v == '"n/a"':
+                return
+            self.DATA[k] = v
+            print(self.DATA)
 
     def on_mesh_response(self, p=None):
         print('==RESPONSE==')
@@ -94,7 +112,6 @@ class MQTT_Plugin:
             print('Minuteman')
             self.sendTelemetry()
             self._count = 0
-
 
 
 
