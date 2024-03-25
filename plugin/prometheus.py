@@ -22,10 +22,10 @@ METRICS = {
 
 class Prometheus_Plugin:
 
-    def __init__(self, interface):
-        self._interface = interface
+    def __init__(self):
+        pass
 
-    def handle_TELEMETRY_APP(self, sender, packet):
+    def handle_TELEMETRY_APP(self, sender, packet, interface=None):
         telem = packet.get('telemetry', {})
         if 'deviceMetrics' in telem:
             logger.debug(f'TELEMETRY_APP: Updating Telemetry Mertics')
@@ -34,16 +34,14 @@ class Prometheus_Plugin:
             if 'channelUtilization' in telem['deviceMetrics']:
                 METRICS['NODE_CH_UTILISATION'].labels(sender).set( telem['deviceMetrics'].get('channelUtilization',0) )
 
-    def count_packets(self, prefix, sender, port):
+    def count_packets(self, prefix, sender, port, interface=None):
         METRICS[f'{prefix}_PACKETS_PORT'].labels(port).inc()
         METRICS[f'{prefix}_PACKETS_SENDER'].labels(sender).inc()
 
-    def start(self):
-        print('Starting Prometheus Server')
+    def start(self, interface=None):
+        logger.info('Starting Prometheus Server')
         start_http_server(8000)
 
-    def loop(self):
-        pass
 
 
 

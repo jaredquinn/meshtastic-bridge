@@ -6,15 +6,14 @@ logger = logging.getLogger(__name__)
 
 class MessageLogger_Plugin:
 
-    def __init__(self, interface):
-        self._interface = interface
+    def __init__(self):
         self.MESSAGE_LOG = open('messages.txt', 'a')
-        print('Message Logger Plugin Loaded.  Writing to messages.txt')
+        logger.info('Message Logger Plugin Loaded.  Writing to messages.txt')
 
-    def handle_TEXT_MESSAGE_APP(self, sender, packet):
+    def handle_TEXT_MESSAGE_APP(self, sender, packet, interface=None):
         payload = packet.get('payload', '')
         now = str(datetime.datetime.now().isoformat())
-        print(f'Logger: Text Message Packet: {packet}')
+        logger.info(f'Logger: Text Message Packet: {packet}')
         self.MESSAGE_LOG.write("%-28s %-7s %-4s: %s\n" % (
             now, 
             sender, 
