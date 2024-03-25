@@ -20,8 +20,8 @@ import plugin.message_logger
 
 PLUGINS = {
   'prometheus': plugin.prometheus.Prometheus_Plugin(interface),
+  'logger': plugin.message_logger.MessageLogger_Plugin(interface),
   'mqtt': plugin.mqtt.MQTT_Plugin(interface),
-  'logger': plugin.message_logger.MessageLogger_Plugin(interface)
 }
 
 
