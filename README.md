@@ -40,6 +40,11 @@ Telemetry and position are updated every UPDATE\_SECONDS seconds (as defined in 
 
 The MQTT Host can be set in MQTT\_HOST.
 
+Additionally two other topics are used:
+
+* TOPIC\_TEXT\_MESSAGE\_PUBLISH - A copy of the payload of each text message on the default channel will be published here.
+* TOPIC\_TEXT\_MESSAGE\_SEND - Send a text message to the default channel with the contents of the MQTT message
+
 
 ### Message Logging
 
@@ -58,6 +63,5 @@ To start the scraper:
 # To Do
 
 * Docker container
-* Message logging
 * Configuration/Command Line Options
 
