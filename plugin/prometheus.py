@@ -25,7 +25,7 @@ class Prometheus_Plugin:
     def __init__(self, interface):
         self._interface = interface
 
-    def handle_TELEMETRY_APP(self, sender, telem):
+    def handle_TELEMETRY_APP(self, sender, packet):
         telem = packet.get('telemetry', {})
         if 'deviceMetrics' in telem:
             logger.debug(f'TELEMETRY_APP: Updating Telemetry Mertics')
