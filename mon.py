@@ -10,6 +10,7 @@ from pubsub import pub
 import plugin.prometheus
 import plugin.mqtt
 import plugin.message_logger
+import plugin.aprs
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -19,6 +20,7 @@ PLUGINS = {
   'prometheus': plugin.prometheus.Prometheus_Plugin(),
   'logger': plugin.message_logger.MessageLogger_Plugin(),
   'mqtt': plugin.mqtt.MQTT_Plugin(),
+  'aprs': plugin.aprs.APRS_Plugin(),
 }
 
 from meshtastic.__init__ import LOCAL_ADDR
@@ -26,18 +28,18 @@ from meshtastic.__init__ import LOCAL_ADDR
 def OnMeshConnection(interface, topic=pub.AUTO_TOPIC):
     nodeInfo = interface.getMyNodeInfo()
     logger.info(f"Connected to node: userId={nodeInfo['user']['id']} hwModel={nodeInfo['user']['hwModel']}")
-    logger.info(nodeInfo)
-    interface.showInfo()
+    #logger.info(nodeInfo)
+    #interface.showInfo()
     x = interface.getNode(LOCAL_ADDR, requestChannels=True)
-    for c in x.channels:
-        logger.info(c)
+    #for c in x.channels:
+    #    logger.info(c)
 
 
 
 
 def OnMeshReceive(packet, interface):
     sender = packet.get('fromId', packet.get('from'))
-    logger.warn(sender)
+    #logger.warn(sender)
     to = packet.get('toId')
     ch = packet.get('channel', None)
 
@@ -50,11 +52,11 @@ def OnMeshReceive(packet, interface):
         call_plugin_function('count_packets', interface, 'SIM', sender, ins)
 
     else:
-        logger.info(f"LCLPKT: {ch}/{port} <<< {sender} >>> {to}")
-        #logger.info(packet)
-
+        frm = "(No Details)"
         if sender in interface.nodes:
-            logger.info(f"FROM: {interface.nodes[sender]['user']['shortName']} {interface.nodes[sender]['user']['longName']}")
+            frm = f"({interface.nodes[sender]['user']['shortName']} {interface.nodes[sender]['user']['longName']})"
+        logger.info(f"LCLPKT: {ch}/{port} <<< {sender} >>> {to} ({frm}")
+        #logger.info(packet)
 
         call_plugin_function(f'handle_{port}', interface, sender, packet)
         call_plugin_function('count_packets', interface, 'LOCAL', sender, port)
