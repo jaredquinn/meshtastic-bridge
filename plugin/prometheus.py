@@ -51,10 +51,9 @@ class Prometheus_Plugin:
             if seconds is not None:
                 if seconds.total_seconds() < 600:
                     r['since'] = seconds
-                    print(r)
                     nodes.append(node)
 
-        print("%d of %d" % (len(interface.nodes.values()), len(nodes)))
+        logger.info("%d total, %d active" % (len(interface.nodes.values()), len(nodes)))
         METRICS['NODE_COUNT'].set(len(nodes))
 
     def count_packets(self, prefix, sender, port, interface=None):

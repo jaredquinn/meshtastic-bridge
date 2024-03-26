@@ -92,13 +92,13 @@ class MQTT_Plugin:
                destinationId='^all', 
                portNum=portnums_pb2.TELEMETRY_APP, 
                channelIndex=0)
-            logger.debug(res)
+            #logger.debug(res)
             res = interface.sendPosition(
                latitude=float(self.DATA.get('latitude')), 
                longitude=float(self.DATA.get('longitude')), 
                altitude=float(self.DATA.get('elevation')),
             )
-            logger.debug(res)
+            #logger.debug(res)
         except Exception as a:
             logger.error(f'Exception: {a}')
 
