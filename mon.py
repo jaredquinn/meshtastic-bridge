@@ -44,7 +44,6 @@ def OnMeshReceive(packet, interface):
     decoded = packet.get('decoded')
     port = decoded.get('portnum')
 
-
     if port == 'SIMULATOR_APP':
         ins = decoded.get('simulator',{}).get('portnum')
         logger.info(f"SIMPKT: {ch}/{ins} <<< {sender} >>> {to}")

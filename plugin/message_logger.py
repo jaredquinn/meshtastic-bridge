@@ -13,14 +13,21 @@ class MessageLogger_Plugin:
     def handle_TEXT_MESSAGE_APP(self, sender, fullpacket, interface=None):
 
         packet = fullpacket.get('decoded', {})
-        payload = packet.get('payload', '')
 
+        channel = fullpacket.get('channel', 0)
+        sender = fullpacket.get('fromId') 
+        short = '????'
+
+        payload = packet.get('payload', '')
         now = str(datetime.datetime.now().isoformat())
         logger.info(f'Text Message Packet: {packet}')
-        short = interface.nodes.get('sender', {}).get('user',{}).get('shortName', "~unknown~")
 
-        self.MESSAGE_LOG.write("%-28s %-7s %-4s: %s\n" % (
+        if sender in interface.nodes:
+            short = interface.nodes[sender].get('user', {}).get('shortName')
+
+        self.MESSAGE_LOG.write("%-19s %1d %-7s %-4s: %s\n" % (
             now, 
+            channel,
             sender, 
             short,
             payload.decode('utf-8')))

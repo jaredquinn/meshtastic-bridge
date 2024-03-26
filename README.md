@@ -50,6 +50,8 @@ Additionally two other topics are used:
 
 The script now also logs all TEXT\_MESSAGE\_APP payloads processed on local to messages.txt.
 
+Channel number logging appears to be based on the sender's channel not the locally matched channel.  This is an API issue.
+
 # Get Started
 
 To get up and running; create a python virtual environment and run:
