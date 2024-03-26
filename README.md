@@ -14,11 +14,14 @@ As functionality expanded quickly a simple class based plugin system was adopted
 
 Current plugins:
 
+* aprs - Publish node positions to APRS
 * prometheus - Original Prometheus interface
 * mqtt - Listen for telemetry & GPS data from MQTT topics to publish
 * message\_logger - Log text message applications to message log
 
 To enable/disable plugins please comment them from the PLUGINS array in mon.py
+
+
 
 ### Prometheus
 
@@ -51,6 +54,11 @@ Additionally two other topics are used:
 The script now also logs all TEXT\_MESSAGE\_APP payloads processed on local to messages.txt.
 
 Channel number logging appears to be based on the sender's channel not the locally matched channel.  This is an API issue.
+
+### APRS
+
+Node positions can be exported to APRS via APRS-IS.  Please see plugins/aprs.py for environment variables required.
+
 
 # Get Started
 
