@@ -21,19 +21,29 @@ PLUGINS = {
   'mqtt': plugin.mqtt.MQTT_Plugin(),
 }
 
-
+from meshtastic.__init__ import LOCAL_ADDR
 
 def OnMeshConnection(interface, topic=pub.AUTO_TOPIC):
     nodeInfo = interface.getMyNodeInfo()
     logger.info(f"Connected to node: userId={nodeInfo['user']['id']} hwModel={nodeInfo['user']['hwModel']}")
-    logger.debug(nodeInfo)
+    logger.info(nodeInfo)
+    interface.showInfo()
+    x = interface.getNode(LOCAL_ADDR, requestChannels=True)
+    for c in x.channels:
+        logger.info(c)
+
+
+
 
 def OnMeshReceive(packet, interface):
-    sender = packet['fromId']
+    sender = packet.get('fromId', packet.get('from'))
+    logger.warn(sender)
     to = packet.get('toId')
+    ch = packet.get('channel', None)
+
     decoded = packet.get('decoded')
     port = decoded.get('portnum')
-    ch = packet.get('channel', None)
+
 
     if port == 'SIMULATOR_APP':
         ins = decoded.get('simulator',{}).get('portnum')
@@ -42,14 +52,14 @@ def OnMeshReceive(packet, interface):
 
     else:
         logger.info(f"LCLPKT: {ch}/{port} <<< {sender} >>> {to}")
-        pack = decoded
-        pack['_channel'] = ch
+        #logger.info(packet)
 
         if sender in interface.nodes:
-            logger.debug(f"FROM: {interface.nodes[sender]['user']['shortName']} {interface.nodes[sender]['user']['longName']}")
+            logger.info(f"FROM: {interface.nodes[sender]['user']['shortName']} {interface.nodes[sender]['user']['longName']}")
 
-        call_plugin_function(f'handle_{port}', interface, sender, pack)
+        call_plugin_function(f'handle_{port}', interface, sender, packet)
         call_plugin_function('count_packets', interface, 'LOCAL', sender, port)
+
 
 
 def call_plugin_function(fn, interface, *args, **kwargs):
@@ -64,6 +74,7 @@ if __name__ == '__main__':
     pub.subscribe(OnMeshReceive, "meshtastic.receive")
     pub.subscribe(OnMeshConnection, "meshtastic.connection.established")
     interface = meshtastic.tcp_interface.TCPInterface(hostname="localhost")
+    #interface = meshtastic.tcp_interface.TCPInterface(hostname="10.10.15.59")
     call_plugin_function('start', interface)
     while True:
         time.sleep(1)
