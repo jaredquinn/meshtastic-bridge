@@ -42,6 +42,7 @@ def convertPosition(lat, lng):
 class APRS_Plugin:
 
     def __init__(self):
+        self._rl = {}
         self._count = 0
         self._aprs = None
         self._enabled = False
@@ -84,6 +85,7 @@ class APRS_Plugin:
         # user: {'id': '!da56df6c', 'longName': 'Bray Park 1', 'shortName': 'BPK1', 'macaddr': 'NLfaVt9s', 'hwModel': 'HELTEC_V3'}
         user = interface.nodes[sender].get('user')
         short = user.get('shortName')
+        ky = sender.replace('!','')
         if short is None:
             logger.warn("Node has no shortname, not sending to APRS")
 
@@ -96,12 +98,25 @@ class APRS_Plugin:
         now = datetime.now(timezone.utc)
         ds = now.strftime("%d%H%Mz")
         hardware = user.get('hwModel')
+        allowSend = True
 
-        station = "MESH-%s" % short.replace(' ', '')
-        MESSAGE=f"{station:<9}*{ds}{pos}nMestastic Node {short}/{long}, {APRS_TEXT}. Device ID {sender} ({hardware})."
-        PACKET=f"{APRS_CALLSIGN}>APDW16,WIDE1-1:;{MESSAGE}"
-        logger.info(f"TX: {PACKET}")
-        self._aprs.sendall(PACKET)
+        if ky in self._rl:
+            lasttime = self._rl[ky]['last']
+            lastpos = self._rl[ky]['position']
+            print(self._rl[ky])
+
+            if pos == pos and (now-lasttime).total_seconds() < 600:
+                logger.warn("Setting allowSend=False as position hasnt changed and less than 600 seconds")
+                allowSend = False
+
+        if allowSend:
+            station = "MESH-%s" % short.replace(' ', '')
+            MESSAGE=f"{station:<9}*{ds}{pos}nMestastic Node {short}/{long}, {APRS_TEXT}. Device ID {sender} ({hardware})."
+            PACKET=f"{APRS_CALLSIGN}>APDW16,WIDE1-1:;{MESSAGE}"
+            logger.info(f"TX: {PACKET}")
+            self._aprs.sendall(PACKET)
+            self._rl[ky] = { 'last': now, 'position': pos }
+
 
     def start(self, interface=None):
         if APRS_CALLSIGN is None:
