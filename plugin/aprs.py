@@ -20,6 +20,8 @@ APRS_GATEWAY_LOCATION=os.environ.get('APRS_LOCATION', '3353.28S/15111.86E')
 
 APRS_BEACON=int(os.environ.get('APRS_BEACON', "600"))
 
+ROBOT_TEXT="I am a robot creating APRS Objects form Meshtastic position reports"
+
 
 def integerToDMh(val, postfix):
     """
@@ -130,6 +132,16 @@ class APRS_Plugin:
         nodeInfo = interface.getMyNodeInfo()
         logger.info(nodeInfo)
         self.beacon()
+
+        # Set current status to I am a robot
+
+        now = datetime.now(timezone.utc)
+        ds = now.strftime("%d%H%Mz")
+        MESSAGE=f">{ds}{ROBOT_TEXT}"
+        PACKET=f"{APRS_CALLSIGN}>APDW16,WIDE1-1:{MESSAGE}"
+        logging.warn(f'Sending {PACKET}')
+        self._aprs.sendall(PACKET)
+
 
     def beacon(self):
 
