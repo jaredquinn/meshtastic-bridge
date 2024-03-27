@@ -8,8 +8,6 @@ USER root
 RUN groupadd -g 1000 mesh && useradd -ml -u 1000 -g 1000 mesh
 RUN mkdir /app && chown mesh /app
 
-USER mesh
-
 WORKDIR /app
 
 COPY requirements.txt /app
