@@ -1,3 +1,4 @@
 meshtastic==2.3.0
 prometheus_client==0.20.0
 aprslib==0.7.2
+paho-mqtt==2.0.0
