@@ -12,11 +12,14 @@ logger = logging.getLogger(__name__)
 
 APRS_CALLSIGN=os.environ.get('APRS_CALLSIGN')
 APRS_PASSWORD=os.environ.get('APRS_PASSWORD')
+APRS_HOST=os.environ.get('APRS_SERVER', 'rotate.aprs2.net')
+APRS_PORT=int(os.environ.get('APRS_PORT', "14580"))
 
-APRS_HOST='rotate.aprs2.net'
-APRS_PORT=14580
+APRS_TEXT=os.environ.get('APRS_TEXT', 'MQTT,ANZ,LongFast')
+APRS_GATEWAY_LOCATION=os.environ.get('APRS_LOCATION', '3353.28S/15111.86E')
 
-APRS_TEXT='MQTT,ANZ,LongFast'
+APRS_BEACON=int(os.environ.get('APRS_BEACON', "600"))
+
 
 def integerToDMh(val, postfix):
     """
@@ -39,6 +42,7 @@ def convertPosition(lat, lng):
 class APRS_Plugin:
 
     def __init__(self):
+        self._count = 0
         self._aprs = None
         self._enabled = False
         self._aprs = aprslib.IS(APRS_CALLSIGN,
@@ -104,14 +108,31 @@ class APRS_Plugin:
             logger.warn("Not setting up APRS, Variable not set")
             return
 
+
         self._aprs.connect(blocking=True)
         self._enabled = True
 
+        nodeInfo = interface.getMyNodeInfo()
+        logger.info(nodeInfo)
+        self.beacon()
+
+    def beacon(self):
+
         # @TODO: bacon on startup and regularly on timer
-        #now = datetime.now(timezone.utc)
-        #ds = now.strftime("%d%H%Mz")
-        #MESSAGE=f">{ds}I am a robot"
-        #PACKET=f"{APRS_CALLSIGN}>APDW16,WIDE1-1:;{MESSAGE}"
-        #logger.warn(f'Sending {PACKET}')
-        #self._aprs.sendall(PACKET)
+        now = datetime.now(timezone.utc)
+        ds = now.strftime("%d%H%Mz")
+        MESSAGE=f"!{APRS_GATEWAY_LOCATION}r/Meshtastic Gateway Node"
+        PACKET=f"{APRS_CALLSIGN}>APDW16,WIDE1-1:{MESSAGE}"
+        logger.warn(f'BEACON: {PACKET}')
+        self._aprs.sendall(PACKET)
+
+    def loop(self, interface=None):
+        self._count = self._count + 1
+        if self._count > APRS_BEACON:
+            self.beacon()
+            self._count = 0
+
+
+
+
 

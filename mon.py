@@ -4,6 +4,7 @@ import meshtastic.tcp_interface
 import logging
 import time
 import random
+import os
 
 from pubsub import pub
 
@@ -71,10 +72,13 @@ def call_plugin_function(fn, interface, *args, **kwargs):
 
 
 if __name__ == '__main__':
+    MESHTASTIC_HOST=os.environ.get("MESHTASTIC_HOST", 'localhost')
+
     pub.subscribe(OnMeshReceive, "meshtastic.receive")
     pub.subscribe(OnMeshConnection, "meshtastic.connection.established")
-    interface = meshtastic.tcp_interface.TCPInterface(hostname="localhost")
-    #interface = meshtastic.tcp_interface.TCPInterface(hostname="10.10.15.59")
+    logger.info(f"Conneting to {MESHTASTIC_HOST}")
+
+    interface = meshtastic.tcp_interface.TCPInterface(hostname=MESHTASTIC_HOST)
     call_plugin_function('start', interface)
     while True:
         time.sleep(1)

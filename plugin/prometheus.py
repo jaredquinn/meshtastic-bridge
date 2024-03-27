@@ -4,6 +4,10 @@ from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 
+import os
+
+PROMETHEUS_PORT=os.environ.get('PROMETHEUS_PORT', 8000)
+
 UPDATE_SECONDS = 30
 
 METRICS = {
@@ -63,7 +67,7 @@ class Prometheus_Plugin:
 
     def start(self, interface=None):
         logger.info('Starting Prometheus Server')
-        start_http_server(8000)
+        start_http_server(int(PROMETHEUS_PORT))
 
     def loop(self, interface=None):
         self._count = self._count + 1

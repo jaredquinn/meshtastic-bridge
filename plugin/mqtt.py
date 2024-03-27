@@ -2,10 +2,14 @@
 import paho.mqtt.client as mqtt
 import logging
 import json
+import os
 
 from meshtastic import telemetry_pb2, portnums_pb2 
 
 logger = logging.getLogger(__name__)
+
+MQTT_HOST = os.environ.get('MQTT_HOST', None)
+UPDATE_SECONDS = os.environ.get('MQTT_TELEMETRY_UPDATE', 300)
 
 TOPIC_TEXT_MESSAGE_PUBLISH = "meshtastic/default/textmessage"
 TOPIC_TEXT_MESSAGE_SEND = "meshtastic/default/sendtext"
@@ -19,9 +23,6 @@ TOPIC_MAP={
   'rtl_433/miranda/devices/Holman-WS5029/60120/humidity': 'humidity'
 }
 
-
-UPDATE_SECONDS = 300
-MQTT_HOST = '10.10.1.100'
 
 class MQTT_Plugin:
 
@@ -103,18 +104,23 @@ class MQTT_Plugin:
             logger.error(f'Exception: {a}')
 
     def start(self, interface=None):
-        logger.info('Starting MQTT Plugin')
-        self._client.connect(MQTT_HOST, 1883, 60)
-        logger.debug('Starting MQTT Loop')
-        self._client.loop_start()
+        if MQTT_HOST is not None:
+            logger.info('Starting MQTT Plugin')
+            self._client.connect(MQTT_HOST, 1883, 60)
+            logger.debug('Starting MQTT Loop')
+            self._client.loop_start()
+        else:
+            logger.info('Skipping MQTT Setup no host specified')
+
         self._interface = interface
 
     def loop(self, interface=None):
-        self._count = self._count + 1
-        if self._count > UPDATE_SECONDS:
-            logger.debug('**minuteman*')
-            self.sendTelemetry(interface)
-            self._count = 0
+        if UPDATE_SECONDS != 0:
+            self._count = self._count + 1
+            if self._count > int(UPDATE_SECONDS):
+                logger.debug('**minuteman*')
+                self.sendTelemetry(interface)
+                self._count = 0
 
 
 

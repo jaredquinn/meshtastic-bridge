@@ -1,13 +1,16 @@
 
 import logging
 import datetime
+import os
 
 logger = logging.getLogger(__name__)
+
+MESSAGE_LOG=os.environ.get('MESH_MESSAGE_LOG', "messages.txt")
 
 class MessageLogger_Plugin:
 
     def __init__(self):
-        self.MESSAGE_LOG = open('messages.txt', 'a')
+        self.MESSAGE_LOG = open(MESSAGE_LOG, 'a')
         logger.info('Message Logger Plugin Loaded.  Writing to messages.txt')
 
     def handle_TEXT_MESSAGE_APP(self, sender, fullpacket, interface=None):
