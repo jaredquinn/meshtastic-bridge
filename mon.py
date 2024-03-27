@@ -39,7 +39,6 @@ def OnMeshConnection(interface, topic=pub.AUTO_TOPIC):
 
 def OnMeshReceive(packet, interface):
     sender = packet.get('fromId', packet.get('from'))
-    #logger.warn(sender)
     to = packet.get('toId')
     ch = packet.get('channel', None)
 
@@ -55,8 +54,8 @@ def OnMeshReceive(packet, interface):
         frm = "(No Details)"
         if sender in interface.nodes:
             frm = f"({interface.nodes[sender]['user']['shortName']} {interface.nodes[sender]['user']['longName']})"
-        logger.info(f"LCLPKT: {ch}/{port} <<< {sender} >>> {to} ({frm}")
-        #logger.info(packet)
+        logger.info(f"LCLPKT: {ch}/{port} <<< {sender} {frm} >>> {to}")
+        logger.debug(f"LCLPKT: {packet}")
 
         call_plugin_function(f'handle_{port}', interface, sender, packet)
         call_plugin_function('count_packets', interface, 'LOCAL', sender, port)
