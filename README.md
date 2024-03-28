@@ -33,7 +33,6 @@ docker run -d \
     -e MQTT_HOST=10.10.1.100 \
     -e MQTT_TELEMETRY_UPDATE=300 \
     -e MESH_MESSAGE_LOG=/data/messages.txt \
-    -e MESH_LOCATION_SOURCE=mqtt \
     -e APRS_CALLSIGN=VK2WAY-14 \
     -e APRS_PASSWORD=REDACTED \
     -e APRS_TEXT="(MQTT,ANZ,LongFast,Alpha)" \
@@ -86,10 +85,13 @@ The exporter currently splits packets into "radio" (packets coming from SIMULATO
 * local\_packets\_sender
 * node\_channel\_util
 * node\_airtx\_util
+* node\_count
 
 #### Configuration
 
-* PROMETHEUS\_PORT - Port to listen on for prometheus (8000).
+* PROMETHEUS\_PORT - Port to listen on for prometheus (None).
+
+If prometheus port is not specified prometheus metrics will not be exported.
 
 ### MQTT
 
@@ -135,8 +137,9 @@ Node positions can be exported to APRS via APRS-IS.
 * APRS\_SERVER - Server to connect to (rotate.aprs2.net)
 * APRS\_PORT - Server port to connect to (14580)
 * APRS\_TEXT - Text to append to APRS comment (MQTT,ANZ,Longfast)
-* APRS\_LOCATION - Location data in APRS format to provide beacons (3353.28S/15111.86E)
 * APRS\_BEACON - Beacon interval for master node (self) beacon 
+
+APRS\_LOCATION is now deprecated and the node position is retrieved instead.
 
 The APRS plugin will not start without the CALLSIGN and PASSWORD provided
 
@@ -149,6 +152,8 @@ To get up and running; create a python virtual environment and run:
 To start the scraper:
 
 ```python3 mon.py```
+
+Set environment variables before starting to enable and utilise additional functionality as documented above.
 
 # To Do
 
