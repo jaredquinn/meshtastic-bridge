@@ -16,13 +16,12 @@ import plugin.aprs
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+from plugin import P, call_plugin_function, register_plugin
 
-PLUGINS = {
-  'prometheus': plugin.prometheus.Prometheus_Plugin(),
-  'logger': plugin.message_logger.MessageLogger_Plugin(),
-  'mqtt': plugin.mqtt.MQTT_Plugin(),
-  'aprs': plugin.aprs.APRS_Plugin(),
-}
+register_plugin('mqtt', 'plugin.mqtt', 'MQTT_Plugin')
+register_plugin('logger', 'plugin.message_logger', 'MessageLogger_Plugin')
+register_plugin('arps', 'plugin.aprs', 'APRS_Plugin')
+register_plugin('arps', 'plugin.prometheus', 'Prometheus_Plugin')
 
 from meshtastic.__init__ import LOCAL_ADDR
 
@@ -63,12 +62,12 @@ def OnMeshReceive(packet, interface):
 
 
 
-def call_plugin_function(fn, interface, *args, **kwargs):
-  for k, v in PLUGINS.items():
-      fnc = getattr(v, fn, None)
-      if callable(fnc):
-          fnc(*args, **kwargs, interface=interface)
-
+#def call_plugin_function(fn, interface, *args, **kwargs):
+#  for k, v in PLUGINS.items():
+#      fnc = getattr(v, fn, None)
+#      if callable(fnc):
+#          fnc(*args, **kwargs, interface=interface)
+#
 
 
 if __name__ == '__main__':
