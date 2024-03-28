@@ -66,7 +66,11 @@ if __name__ == '__main__':
     pub.subscribe(OnMeshConnection, "meshtastic.connection.established")
     logger.info(f"Conneting to {MESHTASTIC_HOST}")
 
-    interface = meshtastic.tcp_interface.TCPInterface(hostname=MESHTASTIC_HOST)
+    try:
+        interface = meshtastic.tcp_interface.TCPInterface(hostname=MESHTASTIC_HOST)
+    except:
+        logger.error(f'Unable to connect to Meshtastic Node {MESHTASTIC_HOST}'
+
     call_plugin_function('start', interface)
 
     while True:
