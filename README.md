@@ -9,6 +9,7 @@ This has only been tested against the Linux Native meshtastic build running in s
 
 The exporter expects to find a meshtastic simulator on localhost, instructions for setting up the Linux Native build can be found at [https://meshtastic.org/docs/software/linux-native/](https://meshtastic.org/docs/software/linux-native/).
 
+
 ## Using Docker
 
 The simplest way to get running is using Docker.   
@@ -37,6 +38,8 @@ docker run -d \
     -e APRS_TEXT="(MQTT,ANZ,LongFast,Alpha)" \
     meshmon:latest
 ```
+
+For more information on getting a node in a docker container see [NODE.md](NODE.md) and [Dockerfile.node](Dockerfile.node)
 
 ## Configuration
 
