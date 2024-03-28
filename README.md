@@ -1,4 +1,5 @@
-# Meshtastic Link (was Prometheus Meshtastic Exporter)
+# Meshtastic Link
+(was Prometheus Meshtastic Exporter)
 
 ***WORK IN PROGRESS***
 
