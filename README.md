@@ -3,7 +3,7 @@
 
 ***WORK IN PROGRESS***
 
-Built on the (https://github.com/meshtastic/python/)[Meshtastic Python API].
+Built on the Meshtastic Python API: https://github.com/meshtastic/python/ 
 
 Originally just a prometheus exporter for meshtastic nodes, this project has expanded to cover converting and mapping meshtastic data with a simple plugin architecture; now supporting prometheus, message logging, APRS-IS and MQTT sources and targets.   This was expanded as the Meshtastic code is not designed to handle multiple clients connected to the API simultaniously, and this project evolved to support exporting to more targets.
 
