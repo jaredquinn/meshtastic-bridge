@@ -1,4 +1,4 @@
-# Meshtastic Link
+# Meshtastic Monitoring Bridge
 (was Prometheus Meshtastic Exporter)
 
 ***WORK IN PROGRESS***
