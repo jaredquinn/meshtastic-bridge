@@ -18,7 +18,7 @@ Copy the [Dockerfile.node](Dockerfile.node) file from this repository to the fir
 Current limitations in the Dockerfile contained within the firmware repository include:
 
 * *only* building from the master branch pulled from github;  preventing local changes.
-* Does not build on ARM architectures - I've raised a PR to fix this at [https://github.com/meshtastic/firmware/pull/3500](meshtastic/firmware PR#3500).
+* Does not build on ARM architectures - I've raised a PR to fix this at https://github.com/meshtastic/firmware/pull/3500.
 
 The Dockerfile.node file in this changes this behaviour and builds from the current copy of the
 code from the current working directory.
