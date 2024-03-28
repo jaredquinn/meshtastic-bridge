@@ -131,7 +131,7 @@ class APRS_Plugin:
 
         nodeInfo = interface.getMyNodeInfo()
         logger.info(nodeInfo)
-        self.beacon()
+        self.beacon(interface)
 
         # Set current status to I am a robot
 
@@ -143,12 +143,19 @@ class APRS_Plugin:
         self._aprs.sendall(PACKET)
 
 
-    def beacon(self):
+    def beacon(self, interface):
 
         # @TODO: bacon on startup and regularly on timer
         now = datetime.now(timezone.utc)
         ds = now.strftime("%d%H%Mz")
-        MESSAGE=f"!{APRS_GATEWAY_LOCATION}r/Meshtastic Gateway Node"
+
+        my_node_num = interface.myInfo.my_node_num
+        posobj = interface.nodesByNum[my_node_num]["position"]
+        lat = posobj.get('latitude',0)
+        lng = posobj.get('longitude',0)
+        pos = convertPosition(lat,lng)
+
+        MESSAGE=f"!{pos}I/Meshtastic Gateway Node"
         PACKET=f"{APRS_CALLSIGN}>APDW16,WIDE1-1:{MESSAGE}"
         logger.warn(f'BEACON: {PACKET}')
         self._aprs.sendall(PACKET)
@@ -156,7 +163,7 @@ class APRS_Plugin:
     def loop(self, interface=None):
         self._count = self._count + 1
         if self._count > APRS_BEACON:
-            self.beacon()
+            self.beacon(interface)
             self._count = 0
 
 
