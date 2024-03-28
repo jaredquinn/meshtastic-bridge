@@ -87,7 +87,7 @@ if __name__ == '__main__':
     try:
         interface = meshtastic.tcp_interface.TCPInterface(hostname=MESHTASTIC_HOST)
     except:
-        logger.error(f'Unable to connect to Meshtastic Node {MESHTASTIC_HOST}'
+        logger.error(f'Unable to connect to Meshtastic Node {MESHTASTIC_HOST}')
 
     call_plugin_function('start', interface)
 
