@@ -36,7 +36,7 @@ To run the image:
 ```
 docker run -d \
     -p 4403:4403 \
-    --name meshtastic_mon \
+    --name meshtastic-node \
     -v /data/meshtastic/mon/config.yaml:/etc/meshtasticd/config.yaml \
     -v /data/meshtastic/mon:/home/mesh/data \
     --log-opt mode=non-blocking --log-opt max-buffer-size=4m  \
