@@ -1,10 +1,12 @@
 
 from prometheus_client import start_http_server, Summary, Counter, Gauge, Info
 from datetime import datetime
+import os
 import logging
 logger = logging.getLogger(__name__)
 
-import os
+__PLUGIN_NAME__ = 'prometheus'
+
 
 PROMETHEUS_PORT=os.environ.get('PROMETHEUS_PORT', 8000)
 

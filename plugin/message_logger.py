@@ -3,7 +3,10 @@ import logging
 import datetime
 import os
 
+__PLUGIN_NAME__ = 'msglog'
+
 logger = logging.getLogger(__name__)
+
 
 MESSAGE_LOG=os.environ.get('MESH_MESSAGE_LOG', "messages.txt")
 

@@ -6,6 +6,9 @@ import os
 from datetime import datetime, timezone
 from meshtastic import telemetry_pb2, portnums_pb2 
 
+__PLUGIN_NAME__ = 'aprs'
+
+
 # Your APRS-IS Callsign and Password should be set in these variables 
 # to activate the APRS Bridge
 logger = logging.getLogger(__name__)

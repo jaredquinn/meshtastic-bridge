@@ -1,10 +1,12 @@
 import datetime
-import meshtastic
-import meshtastic.tcp_interface
 import logging
 import time
 import random
 import os
+
+import meshtastic
+import meshtastic.tcp_interface
+from meshtastic.__init__ import LOCAL_ADDR
 
 from pubsub import pub
 
@@ -16,14 +18,13 @@ import plugin.aprs
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from plugin import P, call_plugin_function, register_plugin
+from plugin import call_plugin_function, register_plugin
 
-register_plugin('mqtt', 'plugin.mqtt', 'MQTT_Plugin')
-register_plugin('logger', 'plugin.message_logger', 'MessageLogger_Plugin')
-register_plugin('arps', 'plugin.aprs', 'APRS_Plugin')
-register_plugin('arps', 'plugin.prometheus', 'Prometheus_Plugin')
+register_plugin('prometheus.Prometheus_Plugin')
+register_plugin('message_logger.MessageLogger_Plugin')
+register_plugin('aprs.APRS_Plugin')
+register_plugin('mqtt.MQTT_Plugin')
 
-from meshtastic.__init__ import LOCAL_ADDR
 
 def OnMeshConnection(interface, topic=pub.AUTO_TOPIC):
     nodeInfo = interface.getMyNodeInfo()
@@ -33,9 +34,6 @@ def OnMeshConnection(interface, topic=pub.AUTO_TOPIC):
     x = interface.getNode(LOCAL_ADDR, requestChannels=True)
     #for c in x.channels:
     #    logger.info(c)
-
-
-
 
 def OnMeshReceive(packet, interface):
     sender = packet.get('fromId', packet.get('from'))
@@ -61,15 +59,6 @@ def OnMeshReceive(packet, interface):
         call_plugin_function('count_packets', interface, 'LOCAL', sender, port)
 
 
-
-#def call_plugin_function(fn, interface, *args, **kwargs):
-#  for k, v in PLUGINS.items():
-#      fnc = getattr(v, fn, None)
-#      if callable(fnc):
-#          fnc(*args, **kwargs, interface=interface)
-#
-
-
 if __name__ == '__main__':
     MESHTASTIC_HOST=os.environ.get("MESHTASTIC_HOST", 'localhost')
 
@@ -79,6 +68,7 @@ if __name__ == '__main__':
 
     interface = meshtastic.tcp_interface.TCPInterface(hostname=MESHTASTIC_HOST)
     call_plugin_function('start', interface)
+
     while True:
         time.sleep(1)
         call_plugin_function('loop', interface)

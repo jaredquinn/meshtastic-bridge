@@ -4,6 +4,8 @@ import logging
 import json
 import os
 
+__PLUGIN_NAME__ = 'mqtt'
+
 from meshtastic import telemetry_pb2, portnums_pb2 
 
 logger = logging.getLogger(__name__)
