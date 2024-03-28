@@ -8,6 +8,35 @@ This has only been tested against the Linux Native meshtastic build running in s
 
 The exporter expects to find a meshtastic simulator on localhost, instructions for setting up the Linux Native build can be found at [https://meshtastic.org/docs/software/linux-native/](https://meshtastic.org/docs/software/linux-native/).
 
+## Using Docker
+
+The simplest way to get running is using Docker.   
+Use docker build to create an image:
+
+```
+docker build -t meshmon:latest .
+```
+
+To run the container:
+
+```
+docker run -d \
+    -p 8000:8000 \
+    --restart=unless-stopped \
+    --name meshalpha-mon \
+    -v /data/meshtastic/alpha/log:/data:rw \
+    -e MESHTASTIC_HOST=172.17.0.4 \
+    -e PROMETHEUS_PORT=8000 \
+    -e MQTT_HOST=10.10.1.100 \
+    -e MQTT_TELEMETRY_UPDATE=300 \
+    -e MESH_MESSAGE_LOG=/data/messages.txt \
+    -e MESH_LOCATION_SOURCE=mqtt \
+    -e APRS_CALLSIGN=VK2WAY-14 \
+    -e APRS_PASSWORD=REDACTED \
+    -e APRS_TEXT="(MQTT,ANZ,LongFast,Alpha)" \
+    meshmon:latest
+```
+
 ## Configuration
 
 Configuration is currently entirely by environment variable; specifically designed
@@ -84,6 +113,7 @@ MQTT Plugin will not be activated if MQTT\_HOST is not specified
 The script now also logs all TEXT\_MESSAGE\_APP payloads processed on local to messages.txt.
 
 Channel number logging appears to be based on the sender's channel not the locally matched channel.  This is an API issue.
+
 
 #### Configuration
 
