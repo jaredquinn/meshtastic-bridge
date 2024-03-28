@@ -36,8 +36,6 @@ APRS_HOST=os.environ.get('APRS_SERVER', 'rotate.aprs2.net')
 APRS_PORT=int(os.environ.get('APRS_PORT', "14580"))
 
 APRS_TEXT=os.environ.get('APRS_TEXT', 'MQTT,ANZ,LongFast')
-APRS_GATEWAY_LOCATION=os.environ.get('APRS_LOCATION', '3353.28S/15111.86E')
-
 APRS_BEACON=int(os.environ.get('APRS_BEACON', "600"))
 
 ROBOT_TEXT="I am a robot creating APRS Objects form Meshtastic position reports"
@@ -74,21 +72,26 @@ class APRS_Plugin:
                       port=APRS_PORT,
                       skip_login=False)
 
-        logger.info('Plugin Initialized')
+        if APRS_CALLSIGN is None:
+            logger.warn("No APRS_CALLSIGN specified; plugin is inactive.")
+            return
+        else:
+            logger.info('Plugin Initialized')
 
     def handle_POSITION_APP(self, sender, fullpacket, interface=None):
+        if APRS_CALLSIGN is None:
+            return
 
         pos = fullpacket.get('decoded',{}).get('position',{})
         sender = fullpacket.get('fromId')
         return self.process_position(sender,pos,interface)
 
     def process_position(self, sender, pos, interface):
+        if APRS_CALLSIGN is None:
+            return
 
         if not self._enabled:
             logger.warn("Not sending packet due to no APRS-IS connection")
-            return
-
-        if APRS_CALLSIGN is None:
             return
 
         if 'latitudeI' not in pos or 'longitudeI' not in pos:
@@ -142,9 +145,7 @@ class APRS_Plugin:
 
     def start(self, interface=None):
         if APRS_CALLSIGN is None:
-            logger.warn("Not setting up APRS, Variable not set")
             return
-
 
         self._aprs.connect(blocking=True)
         self._enabled = True
@@ -164,6 +165,8 @@ class APRS_Plugin:
 
 
     def beacon(self, interface):
+        if APRS_CALLSIGN is None:
+            return
 
         # @TODO: bacon on startup and regularly on timer
         now = datetime.now(timezone.utc)
@@ -181,6 +184,8 @@ class APRS_Plugin:
         self._aprs.sendall(PACKET)
 
     def loop(self, interface=None):
+        if APRS_CALLSIGN is None:
+            return
         self._count = self._count + 1
         if self._count > APRS_BEACON:
             self.beacon(interface)

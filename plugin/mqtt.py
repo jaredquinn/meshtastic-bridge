@@ -31,6 +31,8 @@ logger = logging.getLogger(__name__)
 LOCATION_SOURCE = os.environ.get('MESH_LOCATION_SOURCE', None)
 
 MQTT_HOST = os.environ.get('MQTT_HOST', None)
+MQTT_PORT = os.environ.get('MQTT_PORT', 1883)
+
 UPDATE_SECONDS = os.environ.get('MQTT_TELEMETRY_UPDATE', 300)
 
 TOPIC_TEXT_MESSAGE_PUBLISH = "meshtastic/default/textmessage"
@@ -49,20 +51,26 @@ TOPIC_MAP={
 class MQTT_Plugin:
 
     def __init__(self):
-        logger.debug('Plugin Initialized')
         self.DATA = {}
+        self._count = 0
 
         for k,v in TOPIC_MAP.items():
            self.DATA[v] = 0
+
+        if MQTT_HOST is None:
+            logger.info("No MQTT_HOST Specified.  MQTT Plugin is inactive.")
+            return
 
         self._client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
         self._client.on_connect = self.on_mqtt_connect
         self._client.on_message = self.on_mqtt_message
         self._interface = None
         #self._client.enable_logger(logger)
-        self._count = 0
 
     def handle_TEXT_MESSAGE_APP(self, sender, fullpacket, interface=None):
+        if MQTT_HOST is None:
+            return
+
         packet = fullpacket.get('decoded', {})
         logger.info(f'Text Message Packet: {packet}')
         payload = packet.get('payload', '')
@@ -95,6 +103,8 @@ class MQTT_Plugin:
             logger.debug(self.DATA)
 
     def sendTelemetry(self, interface=None):
+        if MQTT_HOST is None:
+            return
 
         failed = False
         for k,v in self.DATA.items():
@@ -130,16 +140,17 @@ class MQTT_Plugin:
 
     def start(self, interface=None):
         if MQTT_HOST is not None:
-            logger.info('Starting MQTT Plugin')
-            self._client.connect(MQTT_HOST, 1883, 60)
+            logger.debug(f'Connecting to MQTT Broker {MQTT_HOST}')
+            self._client.connect(MQTT_HOST, MQTT_PORT, 120)
             logger.debug('Starting MQTT Loop')
             self._client.loop_start()
-        else:
-            logger.info('Skipping MQTT Setup no host specified')
 
         self._interface = interface
 
     def loop(self, interface=None):
+        if MQTT_HOST is None:
+            return
+
         if UPDATE_SECONDS != 0:
             self._count = self._count + 1
             if self._count > int(UPDATE_SECONDS):

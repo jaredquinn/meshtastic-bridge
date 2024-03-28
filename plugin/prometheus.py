@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 __PLUGIN_NAME__ = 'prometheus'
 
 
-PROMETHEUS_PORT=os.environ.get('PROMETHEUS_PORT', 8000)
+PROMETHEUS_PORT=os.environ.get('PROMETHEUS_PORT', None)
 
 UPDATE_SECONDS = 30
 
@@ -38,11 +38,6 @@ METRICS = {
   'NODE_CH_UTILISATION': Gauge('node_channel_util', 'Node Telemetry Channel Utilisation', ['sender']),
   'NODE_AIRTX_UTILISATION': Gauge('node_airtx_util', 'Node Telemetry Air TX Utilisation', ['sender']),
   'NODE_COUNT': Gauge('node_count', 'Number of Nodes seen in last 10 minutes'),
-  #'NODE_SHORTNAME': Info('node_shortname', 'Node Information', ['sender']),
-  #'NODE_LONGNAME': Info('node_longname', 'Node Longname', ['sender']),
-  #'NODE_MAC': Info('node_macaddress', 'Node MAC Address', ['sender']),
-  #'NODE_HARDWARE': Info('node_hardware', 'Node Hardware', ['sender']),
-  #'NODE_ROLE': Info('node_role', 'Node Role', ['sender']),
 }
 
 def getTimeAgo(ts):
@@ -52,9 +47,15 @@ def getTimeAgo(ts):
 class Prometheus_Plugin:
 
     def __init__(self):
+        if PROMETHEUS_PORT is None:
+            logger.warn('No PROMETHEUS_PORT specified.  Not collecting metrics.')
+
         self._count = 0
 
     def handle_TELEMETRY_APP(self, sender, fullpacket, interface=None):
+        if PROMETHEUS_PORT is None:
+            return
+
         packet = fullpacket.get('decoded')
         telem = packet.get('telemetry', {})
         if 'deviceMetrics' in telem:
@@ -65,6 +66,9 @@ class Prometheus_Plugin:
                 METRICS['NODE_CH_UTILISATION'].labels(sender).set( telem['deviceMetrics'].get('channelUtilization',0) )
 
     def update_nodecount(self, interface=None):
+        if PROMETHEUS_PORT is None:
+            return
+
         logger.debug('Updating Node Count')
         nodes = []
         for node in interface.nodes.values():
@@ -80,15 +84,22 @@ class Prometheus_Plugin:
         METRICS['NODE_COUNT'].set(len(nodes))
 
     def count_packets(self, prefix, sender, port, interface=None):
+        if PROMETHEUS_PORT is None:
+            return
+
         logger.debug('Updating Packet Counts')
         METRICS[f'{prefix}_PACKETS_PORT'].labels(port).inc()
         METRICS[f'{prefix}_PACKETS_SENDER'].labels(sender).inc()
 
     def start(self, interface=None):
-        logger.info('Starting Prometheus Server')
-        start_http_server(int(PROMETHEUS_PORT))
+        if PROMETHEUS_PORT is not None:
+            logger.info(f'Starting Prometheus Server.  Listening on {PROMETHEUS_PORT}')
+            start_http_server(int(PROMETHEUS_PORT))
 
     def loop(self, interface=None):
+        if PROMETHEUS_PORT is None:
+            return
+
         self._count = self._count + 1
         if self._count > UPDATE_SECONDS:
             self.update_nodecount(interface)
