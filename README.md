@@ -14,9 +14,16 @@ Configuration is currently entirely by environment variable; specifically design
 for use with Docker.
 
 * MESHTASTIC\_HOST - Hostname or IP of Meshtastic Node (localhost)
+* MESH\_LOCATION\_SOURCE - Source of position data for generating APP\_POSITION packets.
 
 Additional configuration can be specified for each plugin as specified in the relevant section.
 
+### MESH\_LOCATION\_SOURCE
+
+Specify where the location data for APP\_POSITION packets comes from.  If unset no position data for this
+node will be updated, however some modules may still beacon a stored location from the node.
+
+* mqtt - Use the MQTT plugin to get GPS locations, topics specified in plugin code.
 
 ## Plugin Architecture
 
@@ -61,6 +68,9 @@ Additionally two other topics are used:
 
 * TOPIC\_TEXT\_MESSAGE\_PUBLISH - A copy of the payload of each text message on the default channel will be published here.
 * TOPIC\_TEXT\_MESSAGE\_SEND - Send a text message to the default channel with the contents of the MQTT message
+
+"mqtt" may be specified as a MESH\_LOCATION\_SOURCE which will update the nodes position from MQTT topic specified in the 
+code.
 
 #### Configuration
 
@@ -107,6 +117,7 @@ To start the scraper:
 
 # To Do
 
-* Docker container
-* Configuration/Command Line Options
+* Add GPSd support
+* Ongoing - Configuration Options
+* Better error trapping in threads
 
