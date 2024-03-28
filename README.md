@@ -1,8 +1,8 @@
-# Prometheus Meshtastic Exporter
+# Meshtastic Link (was Prometheus Meshtastic Exporter)
 
 ***WORK IN PROGRESS***
 
-First cut of a prometheus exporter for meshtastic nodes.
+Originally just a prometheus exporter for meshtastic nodes, this project has expanded to cover converting and mapping meshtastic data with a simple plugin architecture; now supporting prometheus, message logging, APRS-IS and MQTT sources and targets.
 
 This has only been tested against the Linux Native meshtastic build running in simulator mode connected to the global MQTT server (using the msh/ANZ root) and tracks those simulator packets as "radio" packets.
 
