@@ -10,6 +10,8 @@ from meshtastic import telemetry_pb2, portnums_pb2
 
 logger = logging.getLogger(__name__)
 
+LOCATION_SOURCE = os.environ.get('MESH_LOCATION_SOURCE', None)
+
 MQTT_HOST = os.environ.get('MQTT_HOST', None)
 UPDATE_SECONDS = os.environ.get('MQTT_TELEMETRY_UPDATE', 300)
 
@@ -75,6 +77,7 @@ class MQTT_Plugin:
             logger.debug(self.DATA)
 
     def sendTelemetry(self, interface=None):
+
         failed = False
         for k,v in self.DATA.items():
             if v == None:
@@ -90,20 +93,22 @@ class MQTT_Plugin:
             )
         )
         logger.info(data)
-        try:
-            res = interface.sendData(data, 
-               destinationId='^all', 
-               portNum=portnums_pb2.TELEMETRY_APP, 
-               channelIndex=0)
-            #logger.debug(res)
-            res = interface.sendPosition(
-               latitude=float(self.DATA.get('latitude')), 
-               longitude=float(self.DATA.get('longitude')), 
-               altitude=float(self.DATA.get('elevation')),
-            )
-            #logger.debug(res)
-        except Exception as a:
-            logger.error(f'Exception: {a}')
+
+        if LOCATION_SOURCE == 'mqtt':
+            try:
+                res = interface.sendData(data, 
+                   destinationId='^all', 
+                   portNum=portnums_pb2.TELEMETRY_APP, 
+                   channelIndex=0)
+                #logger.debug(res)
+                res = interface.sendPosition(
+                   latitude=float(self.DATA.get('latitude')), 
+                   longitude=float(self.DATA.get('longitude')), 
+                   altitude=float(self.DATA.get('elevation')),
+                )
+                #logger.debug(res)
+            except Exception as a:
+                logger.error(f'Exception: {a}')
 
     def start(self, interface=None):
         if MQTT_HOST is not None:
