@@ -13,17 +13,21 @@ cd firmware
 checkout v2.2.9.47301a5
 ```
 
-Copy the [Dockerfile.node](Dockerfile.node) file from this repository to the firmware directory;
-it has changes and updates from the release file, which currently 
-*only* builds the development release from master branch.
+Copy the [Dockerfile.node](Dockerfile.node) file from this repository to the firmware directory.
 
-The Dockerfile.node file in this repository uses the currently 
-checked out code to build the image, and therefore can be used 
-against any recent version.
+Current limitations in the Dockerfile contained within the firmware repository include:
 
-Some older versions have known issues with some components;
+* *only* building from the master branch pulled from github;  preventing local changes.
+* Does not build on ARM architectures (see [https://github.com/meshtastic/firmware/pull/3500](meshtastic/firmware PR#3500).
 
-To build:
+The Dockerfile.node file in this changes this behaviour and builds from the current copy of the
+code from the current working directory.
+
+Some older versions have known issues with some components see Caveats below.
+
+## Building the image
+
+Build a container image from your firmware directory by running docker build:
 
 ```
 docker build -t meshtastic:v2.2.9 -f Dockerfile.node .
@@ -31,7 +35,9 @@ docker build -t meshtastic:v2.2.9 -f Dockerfile.node .
 
 Where -t is the name to give the container image you are creating.
 
-To run the image:
+## Running the container
+
+To start a container using your newly built image:
 
 ```
 docker run -d \
