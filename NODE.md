@@ -13,7 +13,7 @@ cd firmware
 checkout v2.2.9.47301a5
 ```
 
-Copy the Dockerfile.node file from this to the firmware directory;
+Copy the [Dockerfile.node](Dockerfile.node) file from this repository to the firmware directory;
 it has changes and updates from the release file, which currently 
 *only* builds the development release from master branch.
 
