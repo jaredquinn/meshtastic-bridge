@@ -1,6 +1,6 @@
 # Linux Native Node
 
-A guide for building Linux Native Nodes.
+A guide for building Linux Native Nodes for Docker.
 
 
 ## Building Linux Native for Docker
