@@ -53,26 +53,7 @@ docker run -d \
 Version v2.3.0 and later support the webserver on Linux Native builds and
 the dockerfile here includes support for it.
 
-Until PR 3506 is merged you will need to update your arch/portuino/portuino.ini file
-before building the docker image to link against these libraries while building, scroll
-to the bottom of the file and update build\_flags to include ssl, orcania and ulfius:
-
-```
-build_flags =
-  ${arduino_base.build_flags}
-  -fPIC
-  -Isrc/platform/portduino
-  -DRADIOLIB_EEPROM_UNSUPPORTED
-  -DPORTDUINO_LINUX_HARDWARE
-  -lbluetooth
-  -lgpiod
-  -lyaml-cpp
-  -lssl
-  -lorcania
-  -lulfius
-```
-
-Build the container
+Build the container as above (tagging it with the version you're building):
 
 ```
 docker build -t meshtastic:v2.3.2 -f Dockerfile.node .
