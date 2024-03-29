@@ -19,9 +19,10 @@ Current limitations in the Dockerfile contained within the firmware repository i
 
 * *only* building from the master branch pulled from github;  preventing local changes.
 * Does not build on ARM architectures - I've raised a PR to fix this at https://github.com/meshtastic/firmware/pull/3500.
+* Additional PR raised to include libraries required by piwebserver at https://github.com/meshtastic/firmware/pull/3506.
 
 The Dockerfile.node file in this changes this behaviour and builds from the current copy of the
-code from the current working directory.
+code from the current working directory.    The file will be maintained here also for multiversion builds.
 
 Some older versions have known issues with some components see Caveats below.
 
@@ -52,13 +53,17 @@ docker run -d \
 
 ## Known Issues
 
+### Webserver Support
+
+Webserver on Linux Native build is unsupported prior to v2.3.0
+
+
 ### ctime error on src/gps/GPS.cpp
 
 Edit the file and update the PORTDUINO block to include <ctime>
 
 ```
 #ifdef ARCH_PORTDUINO
-#include "PortduinoGlue.h"
 #include "meshUtils.h"
 #include <ctime>
 #endif
