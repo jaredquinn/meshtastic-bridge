@@ -33,7 +33,7 @@ LOCATION_SOURCE = os.environ.get('MESH_LOCATION_SOURCE', None)
 MQTT_HOST = os.environ.get('MQTT_HOST', None)
 MQTT_PORT = os.environ.get('MQTT_PORT', 1883)
 
-UPDATE_SECONDS = os.environ.get('MQTT_TELEMETRY_UPDATE', 300)
+MQTT_UPDATE_SECONDS = os.environ.get('MQTT_TELEMETRY_UPDATE', 300)
 
 TOPIC_TEXT_MESSAGE_PUBLISH = "meshtastic/default/textmessage"
 TOPIC_TEXT_MESSAGE_SEND = "meshtastic/default/sendtext"
@@ -136,8 +136,6 @@ class MQTT_Plugin:
             portNum=portnums_pb2.TELEMETRY_APP, 
             channelIndex=0)
 
-        self.sendPosition(interface)
-
     def sendPosition(self, interface):
 
         if LOCATION_SOURCE != 'mqtt':
@@ -159,6 +157,7 @@ class MQTT_Plugin:
         except Exception as a:
             logger.error(f'Exception: {a}')
 
+
     def start(self, interface=None):
         if MQTT_HOST is not None:
             logger.debug(f'Connecting to MQTT Broker {MQTT_HOST}')
@@ -172,12 +171,12 @@ class MQTT_Plugin:
         if MQTT_HOST is None:
             return
 
-        if UPDATE_SECONDS != 0:
+        if MQTT_UPDATE_SECONDS != 0:
             self._count = self._count + 1
-            if self._count > int(UPDATE_SECONDS):
+            if self._count >= int(MQTT_UPDATE_SECONDS):
                 logger.debug('**minuteman*')
                 self.sendTelemetry(interface)
+                self.sendPosition(interface)
                 self._count = 0
-
 
 
