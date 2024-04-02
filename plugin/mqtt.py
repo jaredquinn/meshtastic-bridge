@@ -58,7 +58,7 @@ class MQTT_Plugin:
            self.DATA[v] = 0
 
         if MQTT_HOST is None:
-            logger.info("No MQTT_HOST Specified.  MQTT Plugin is inactive.")
+            logger.warning("No MQTT_HOST Specified.  MQTT Plugin is inactive.")
             return
 
         self._client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
