@@ -112,7 +112,6 @@ class MQTT_Plugin:
                 logger.error(f"Incompete Dataset Detected")
                 failed = True
 
-        logger.info('SENDING TELEMETRY')
         data = telemetry_pb2.Telemetry(
             environment_metrics = telemetry_pb2.EnvironmentMetrics(
                 temperature=float(self.DATA.get('temperature')),
@@ -120,23 +119,35 @@ class MQTT_Plugin:
                 barometric_pressure=float(self.DATA.get('pressure')),
             )
         )
-        logger.info(data)
 
-        if LOCATION_SOURCE == 'mqtt':
-            try:
-                res = interface.sendData(data, 
-                   destinationId='^all', 
-                   portNum=portnums_pb2.TELEMETRY_APP, 
-                   channelIndex=0)
-                #logger.debug(res)
-                res = interface.sendPosition(
-                   latitude=float(self.DATA.get('latitude')), 
-                   longitude=float(self.DATA.get('longitude')), 
-                   altitude=float(self.DATA.get('elevation')),
-                )
-                #logger.debug(res)
-            except Exception as a:
-                logger.error(f'Exception: {a}')
+        logger.info(f'Sending TELEMETRY_APP Packet: {data}')
+
+        res = interface.sendData(data, 
+            destinationId='^all', 
+            portNum=portnums_pb2.TELEMETRY_APP, 
+            channelIndex=0)
+
+        self.sendPosition(self, interface=None)
+
+    def sendPosition(self, interface):
+
+        if LOCATION_SOURCE != 'mqtt':
+            return
+
+        lat = self.DATA.get('latitude')
+        lon = self.DATA.get('longitude')
+        alt = self.DATA.get('elevation')
+
+        logger.info(f'Sending POSITION_APP Packet {lat} {lon} at {alt} elv')
+        try:
+            res = interface.sendPosition(
+                latitude=float(d.get('latitude')), 
+                longitude=float(d.get('longitude')), 
+                altitude=float(d.get('elevation')),
+            )
+
+        except Exception as a:
+            logger.error(f'Exception: {a}')
 
     def start(self, interface=None):
         if MQTT_HOST is not None:
