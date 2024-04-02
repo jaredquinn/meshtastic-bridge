@@ -34,7 +34,7 @@ import plugin.mqtt
 import plugin.message_logger
 import plugin.aprs
 
-logging.basicConfig(format="%(asctime)s %(levelname)-8s: %(message)s",
+logging.basicConfig(format="%(asctime)s %(levelname)-8s %(name)s: %(message)s",
                     level=logging.INFO,
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -47,6 +47,7 @@ register_plugin('prometheus.Prometheus_Plugin')
 register_plugin('message_logger.MessageLogger_Plugin')
 register_plugin('aprs.APRS_Plugin')
 register_plugin('mqtt.MQTT_Plugin')
+register_plugin('gpsd.GPSd_Plugin')
 
 def OnMeshDisconnect(interface):
     sys.exit("Connection Lost to Meshtastic Node")

@@ -57,6 +57,7 @@ Specify where the location data for APP\_POSITION packets comes from.  If unset 
 node will be updated, however some modules may still beacon a stored location from the node.
 
 * mqtt - Use the MQTT plugin to get GPS locations, topics specified in plugin code.
+* gpsd - Connect to GPSd to get GPS locations for publishing POSITION\_APP
 
 ## Plugin Architecture
 
@@ -65,12 +66,12 @@ As functionality expanded quickly a simple class based plugin system was adopted
 Current plugins:
 
 * aprs - Publish node positions to APRS
+* gpsd - Get current position from GPSd
 * prometheus - Original Prometheus interface
 * mqtt - Listen for telemetry & GPS data from MQTT topics to publish
 * message\_logger - Log text message applications to message log
 
 To enable/disable plugins please comment them from the PLUGINS array in mon.py
-
 
 
 ### Prometheus
@@ -92,6 +93,19 @@ The exporter currently splits packets into "radio" (packets coming from SIMULATO
 * PROMETHEUS\_PORT - Port to listen on for prometheus (None).
 
 If prometheus port is not specified prometheus metrics will not be exported.
+
+### GPSd
+
+Connect to a server running GPSd and update current position using this data.
+
+A POSITION\_APP report will be generated at the specified interval.
+
+#### Configuration
+
+* GPSD\_HOST - Hostname or IP Address to connect to (local instance)
+* GPSD\_PORT - Port number for GPSd (2947)
+* MESH\_LOCATION\_UPDATE - How frequently to publish new POSITION\_APP packet
+* MESH\_LOCATION\_SOURCE - Must be set to 'gpsd' for this plugin to function
 
 ### MQTT
 
