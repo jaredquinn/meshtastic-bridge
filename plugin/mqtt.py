@@ -39,20 +39,26 @@ TOPIC_TEXT_MESSAGE_PUBLISH = "meshtastic/default/textmessage"
 TOPIC_TEXT_MESSAGE_SEND = "meshtastic/default/sendtext"
 
 TOPIC_MAP={
-  'statestream/sensor/gps/latitude': 'latitude',
-  'statestream/sensor/gps/longitude': 'longitude',
-  'statestream/sensor/gps/elevation': 'elevation',
   'wxpub/inside_barometer/state': 'pressure',
   'rtl_433/miranda/devices/Holman-WS5029/60120/temperature_C': 'temperature',
   'rtl_433/miranda/devices/Holman-WS5029/60120/humidity': 'humidity'
 }
 
+LOCATION_MAP={
+  'statestream/sensor/gps/latitude': 'latitude',
+  'statestream/sensor/gps/longitude': 'longitude',
+  'statestream/sensor/gps/elevation': 'elevation',
+}
 
 class MQTT_Plugin:
 
     def __init__(self):
         self.DATA = {}
         self._count = 0
+
+        if LOCATION_SOURCE == 'mqtt':
+            for k,v in LOCATION_MAP.items():
+                TOPIC_MAP[k] = v
 
         for k,v in TOPIC_MAP.items():
            self.DATA[v] = 0
@@ -100,17 +106,20 @@ class MQTT_Plugin:
             if v == '"n/a"':
                 return
             self.DATA[k] = v
-            logger.debug(self.DATA)
+            logger.info(f'Updating internal telemetry {k}={v}')
 
     def sendTelemetry(self, interface=None):
         if MQTT_HOST is None:
             return
 
         failed = False
-        for k,v in self.DATA.items():
-            if v == None:
-                logger.error(f"Incompete Dataset Detected")
+        for k in ['temperature', 'humidity', 'pressure']:
+            if self.DATA[k] == 0:
                 failed = True
+
+        if failed == True:
+            logger.info(f'No telemetry to send yet; waiting for data.')
+            return
 
         data = telemetry_pb2.Telemetry(
             environment_metrics = telemetry_pb2.EnvironmentMetrics(
@@ -127,7 +136,7 @@ class MQTT_Plugin:
             portNum=portnums_pb2.TELEMETRY_APP, 
             channelIndex=0)
 
-        self.sendPosition(self, interface=None)
+        self.sendPosition(interface)
 
     def sendPosition(self, interface):
 
@@ -137,6 +146,7 @@ class MQTT_Plugin:
         lat = self.DATA.get('latitude')
         lon = self.DATA.get('longitude')
         alt = self.DATA.get('elevation')
+
 
         logger.info(f'Sending POSITION_APP Packet {lat} {lon} at {alt} elv')
         try:
