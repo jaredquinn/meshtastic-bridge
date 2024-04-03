@@ -37,7 +37,7 @@ import plugin.aprs
 logging.basicConfig(format="%(asctime)s %(levelname)-8s %(name)s: %(message)s",
                     level=logging.INFO,
                     datefmt='%Y-%m-%d %H:%M:%S')
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 from plugin import call_plugin_function, register_plugin
 
