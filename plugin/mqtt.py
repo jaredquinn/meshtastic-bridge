@@ -155,13 +155,14 @@ class MQTT_Plugin:
             )
 
         except Exception as a:
-            logger.error(f'Exception: {a}')
+            logger.critical(f'Exception: {a}')
 
 
     def start(self, interface=None):
         if MQTT_HOST is not None:
-            logger.debug(f'Connecting to MQTT Broker {MQTT_HOST}')
+            logger.info(f'Connecting to MQTT Broker {MQTT_HOST}')
             self._client.connect(MQTT_HOST, MQTT_PORT, 120)
+
             logger.debug('Starting MQTT Loop')
             self._client.loop_start()
 
