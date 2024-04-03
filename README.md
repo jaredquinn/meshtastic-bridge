@@ -80,13 +80,26 @@ To enable/disable plugins please comment them from the PLUGINS array in mon.py
 
 The exporter currently splits packets into "radio" (packets coming from SIMULATOR\_APP port) and "local" (packets to/from the node in question, including packets to ^all).
 
-* sim\_packets\_app
-* sim\_packets\_sender
-* local\_packets\_app
-* local\_packets\_sender
-* node\_channel\_util
-* node\_airtx\_util
-* node\_count
+* sim\_packets\_app - Packets seen by the simulated radio by application portnum
+* sim\_packets\_sender - Packets seen by the simulated radio by sender ID
+* local\_packets\_app - Packets seen by the local node by application portnum
+* local\_packets\_sender - Packets seen by the local node by sender ID
+* node\_channel\_util - Channel Utilisation as reported in deviceTelemetry by sender ID
+* node\_airtx\_util - Air Utilisation as reported in deviceTelemetry by sender ID
+
+The node counts are now split into four different metrics;  historically the
+metrics collected by this tool were nodes seen in lastHeard over the last 5 minutes;
+however as this differs from Meshtastic's own reporting period (2 hours) so both are now 
+available.
+
+The meshtastic lastHeard also depends upon specific packet types destined to the 
+localNode; the node\_seen metrics now report all packets seen through the simulated radio too
+(packets routed not destined for localNode).
+
+* node\_count - Node count as reported by lastHeard in last 5 minutes
+* node\_count\_2h - Node count as reported by lastHeard in last 2 hours
+* node\_seen - Node count by packets sniffed in last 5 minutes
+* node\_seen\_2h - Node count by packets sniffed in last 2 hours
 
 #### Configuration
 
