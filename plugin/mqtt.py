@@ -35,8 +35,10 @@ MQTT_PORT = os.environ.get('MQTT_PORT', 1883)
 
 MQTT_UPDATE_SECONDS = os.environ.get('MQTT_TELEMETRY_UPDATE', 300)
 
-TOPIC_TEXT_MESSAGE_PUBLISH = "meshtastic/default/textmessage"
-TOPIC_TEXT_MESSAGE_SEND = "meshtastic/default/sendtext"
+MQTT_MESSAGE_ROOT = os.environ.get('MQTT_MESSAGE_ROOT', 'meshtastic/default')
+
+TOPIC_TEXT_MESSAGE_PUBLISH = f"{MQTT_MESSAGE_ROOT/textmessage"
+TOPIC_TEXT_MESSAGE_SEND = f"{MQTT_MESSAGE_ROOT}/sendtext"
 
 TOPIC_MAP={
   'wxpub/inside_barometer/state': 'pressure',
@@ -107,17 +109,20 @@ class MQTT_Plugin:
                 return
             self.DATA[k] = v
             logger.info(f'Updating internal telemetry {k}={v}')
+            return
+
+    def hasTelemetry(self):
+        for k in ['temperature', 'humidity', 'pressure']:
+            if self.DATA[k] == 0:
+                logger.info(f'No data for {k}')
+                return True
+        return False
 
     def sendTelemetry(self, interface=None):
         if MQTT_HOST is None:
             return
 
-        failed = False
-        for k in ['temperature', 'humidity', 'pressure']:
-            if self.DATA[k] == 0:
-                failed = True
-
-        if failed == True:
+        if not self.hasTelemetry():
             logger.info(f'No telemetry to send yet; waiting for data.')
             return
 
