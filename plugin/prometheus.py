@@ -39,6 +39,7 @@ METRICS = {
 
   'NODE_COUNT': Gauge('node_count', 'Number of Nodes seen in last 5 minutes (lastseen in Meshtastic)'),
   'NODE_COUNT_2HR': Gauge('node_count_2h', 'Number of Nodes seen in last 2 hours (lastseen in Meshtastic)'),
+
   'NODE_SEEN': Gauge('node_seen', 'Number of Nodes that we saw traffic from in last 5 minutes'),
   'NODE_SEEN_2HR': Gauge('node_seen_2h', 'Number of Nodes that we saw traffic from in last 2 hours'),
 }
@@ -46,7 +47,13 @@ METRICS = {
 
 def getTimeAgo(ts):
     """Format how long ago have we heard from this node (aka timeago)."""
-    return datetime.now() - datetime.fromtimestamp(ts) if ts else None
+    if ts is None:
+        return None
+
+    if not isinstance(ts, datetime):
+        ts = datetime.fromtimestamp(ts)
+
+    return datetime.now() - ts if ts else None
 
 class Prometheus_Plugin:
 
@@ -71,22 +78,31 @@ class Prometheus_Plugin:
             if 'channelUtilization' in telem['deviceMetrics']:
                 METRICS['NODE_CH_UTILISATION'].labels(sender).set( telem['deviceMetrics'].get('channelUtilization',0) )
 
+    def get_node_counts(self, nodes, isNode=False):
+        count = count2h = 0
+
+        for node in nodes:
+            if isNode:
+                seconds = getTimeAgo(node.get("lastHeard"))
+            else:
+                seconds = getTimeAgo(node)
+
+            if seconds is not None:
+                if seconds.total_seconds() < 600:
+                    count = count + 1
+                if seconds.total_seconds() < 7200:
+                    count2h = count2h + 1
+
+        return count, count2h
+
+
     def update_nodecount(self, interface=None):
         """
         Update nodecount using the meshtastic nodedb lastheard time
         """
         if not self.active: return
 
-        logger.debug('Updating Node Count')
-        count2h = count = 0
-        for node in interface.nodes.values():
-            #print(node)
-            seconds = getTimeAgo(node.get("lastHeard"))
-            if seconds is not None:
-                if seconds.total_seconds() < 600:
-                    count = count + 1
-                if seconds.total_seconds() < 7200:
-                    count2h = count2h + 1
+        (count, count2h) = self.get_node_counts(interface.nodes.values(), True)
 
         METRICS['NODE_COUNT'].set(count)
         METRICS['NODE_COUNT_2HR'].set(count2h)
@@ -99,19 +115,13 @@ class Prometheus_Plugin:
         """
         if not self.active: return
 
-        total = nodecount = nc2h = 0
-        for n,v in self.lastseen.items():
-            delta = datetime.now() - v 
-            if delta.total_seconds() < 600:
-                nodecount = nodecount + 1
-            if delta.total_seconds() < 7200:
-                nc2h = nc2h + 1
-            total = total + 1
+        (count, count2h) = self.get_node_counts(self.lastseen.values(), False)
+        total = len(self.lastseen)
 
-        METRICS['NODE_SEEN'].set(nodecount)
-        METRICS['NODE_SEEN_2H'].set(nc2h)
+        METRICS['NODE_SEEN'].set(count)
+        METRICS['NODE_SEEN_2HR'].set(count2h)
         logger.info("Packets Seen (node_seen): %d total, %d active (5m) %d active (2h)" % \
-                (total, nodecount, nc2h))
+                (total, count, count2h))
 
 
     def count_packets(self, prefix, sender, port, interface=None):
