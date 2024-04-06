@@ -109,6 +109,7 @@ class Prometheus_Plugin:
             total = total + 1
 
         METRICS['NODE_SEEN'].set(nodecount)
+        METRICS['NODE_SEEN_2H'].set(nc2h)
         logger.info("Packets Seen (node_seen): %d total, %d active (5m) %d active (2h)" % \
                 (total, nodecount, nc2h))
 
